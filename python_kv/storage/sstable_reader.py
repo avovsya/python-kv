@@ -1,4 +1,4 @@
-from python_kv.storage.memtable import MemTable
+from python_kv.storage.memtable import Memtable
 from python_kv.storage.sstable_index import SSTableIndex
 from python_kv.storage.item import Item
 
@@ -32,10 +32,11 @@ def _get_memtable_item_from_bytes(bytes, current_offset):
 
     return Item(key, value, flags["is_tombstone"]), end_offset
 
-
+# TODO remove
 class SSTableReader():
+    # TODO move part that reads data to SSTable class
     def get_memtable_from_binary(self, bytes):
-        memtable = MemTable()
+        memtable = Memtable()
         current_offset = 0
 
         item, end_offset = _get_memtable_item_from_bytes(bytes, current_offset)
@@ -47,20 +48,4 @@ class SSTableReader():
             memtable.put_item(item)
 
         return memtable
-
-
-    def get_index_from_binary(self, bytes):
-        index = SSTableIndex()
-
-        offset = 0
-
-        while offset < len(bytes):
-            key_digest = int.from_bytes(bytes[offset:offset+4], byteorder='little', signed=False)
-            key_offset = int.from_bytes(bytes[offset+4:offset+8], byteorder='little', signed=False)
-
-            index.add_item_by_key_digest(key_digest, key_offset)
-
-            offset += 8
-
-        return index
 

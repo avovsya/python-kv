@@ -1,10 +1,10 @@
 import pytest
 import sys
-from python_kv.storage.memtable import MemTable
+from python_kv.storage.memtable import Memtable
 
 
 def test_retrieval():
-    memtable = MemTable()
+    memtable = Memtable()
     memtable.put("key1", "value1")
     memtable.put("key2", "value2")
     memtable.put("key2", "value2-changed")
@@ -14,7 +14,7 @@ def test_retrieval():
 
 
 def test_deletion():
-    memtable = MemTable()
+    memtable = Memtable()
     memtable.put("key1", "value1")
     memtable.put("key1", "value1-changed")
     memtable.delete("key1")
@@ -29,7 +29,7 @@ def test_size():
     key3_size = sys.getsizeof("key3") + sys.getsizeof("value3")
     key3_deleted_size = sys.getsizeof("key3") + sys.getsizeof(None)
 
-    memtable = MemTable()
+    memtable = Memtable()
 
     memtable.put("key1", "value1")
     memtable.put("key2", "value2")
@@ -44,7 +44,7 @@ def test_size():
 
 
 def test_sorted_items_iterator():
-    memtable = MemTable()
+    memtable = Memtable()
 
     memtable.put("key2", "value2")
     memtable.put("key1", "value1")
@@ -59,3 +59,19 @@ def test_sorted_items_iterator():
         output += key + ":"
 
     assert output == "33:4:5:key1:key2:key3:"
+
+
+def test_binary_output():
+    memtable =  Memtable()
+    memtable.put(1, 1)
+    memtable.put(2, 2)
+    memtable.put(3, 3)
+    memtable.delete(3)
+
+    binary_sstable, binary_index, index = memtable.convert_to_binary_and_index()
+    assert binary_sstable == b'\x01\x00\x00\x001\x01\x00\x00\x00\x001\x01\x00\x00\x002\x01\x00\x00\x00\x002\x01\x00\x00\x003\x00\x00\x00\x00\x80'
+    assert binary_index == b'\x93\xac\x16\x94\x00\x00\x00\x00\x17\xe2)\x01\x0b\x00\x00\x00\xb4\xa1\xc7\x0f\x16\x00\x00\x00'
+    assert index.get_item_offset('1') == 0
+    assert index.get_item_offset('2') == 11
+    assert index.get_item_offset('3') == 22
+

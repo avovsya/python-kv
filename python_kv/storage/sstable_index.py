@@ -2,6 +2,31 @@ from python_kv.storage.item import Item
 
 
 class SSTableIndex():
+    @classmethod
+    def from_binary(cls, binary_index):
+        '''  Loads Index from binary index representation
+        Args:
+            binary_index (bytes): Binary index
+
+        Returns:
+            (SSTableIndex): SSTableIndex instance representing data from binary index
+        '''
+
+        index = SSTableIndex()
+
+        offset = 0
+
+        while offset < len(binary_index):
+            key_digest = int.from_bytes(binary_index[offset:offset+4], byteorder='little', signed=False)
+            key_offset = int.from_bytes(binary_index[offset+4:offset+8], byteorder='little', signed=False)
+
+            index.add_item_by_key_digest(key_digest, key_offset)
+
+            offset += 8
+
+        return index
+
+
     def __init__(self):
         self._dict = dict()
 
