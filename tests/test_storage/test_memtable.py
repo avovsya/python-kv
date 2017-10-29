@@ -1,5 +1,7 @@
 import pytest
 import sys
+
+from python_kv.storage.item import Item
 from python_kv.storage.memtable import Memtable
 
 
@@ -9,8 +11,8 @@ def test_retrieval():
     memtable.put("key2", "value2")
     memtable.put("key2", "value2-changed")
 
-    assert memtable.get('key1') == "value1"
-    assert memtable.get('key2') == "value2-changed"
+    assert memtable.get('key1') == Item('key1', "value1", False)
+    assert memtable.get('key2') == Item('key2', "value2-changed", False)
 
 
 def test_deletion():
@@ -19,7 +21,7 @@ def test_deletion():
     memtable.put("key1", "value1-changed")
     memtable.delete("key1")
 
-    assert memtable.get('key1') is None
+    assert memtable.get('key1').is_tombstone() == True
 
 
 def test_size():

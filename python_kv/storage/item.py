@@ -11,6 +11,11 @@ class Item():
         self._digest = mmh3.hash(self._key, signed=False)
         self._is_tombstone = is_tombstone
 
+
+    def __eq__(self, other):
+        return self._key == other._key and self._value == other._value and self._is_tombstone == other._is_tombstone
+
+
     def get_key_digest(self):
         return self._digest
 

@@ -102,10 +102,12 @@ class SSTable:
         item_offset = self.index.get_item_offset(key)
 
         if item_offset is None:
-            return (None, False)
+            # return (None, False)
+            return None
 
         with open(self.table_filename, 'rb') as table_file:
             item = _get_memtable_item_from_file(table_file, item_offset)
 
-            return item.get_value(), item.is_tombstone()
+            # return item.get_value(), item.is_tombstone()
+            return item
 

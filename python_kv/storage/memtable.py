@@ -14,19 +14,20 @@ class Memtable():
         self._size = 0
 
 
-    def _get_item(self, key):
-        item = self._sorted_dict.get(key, None)
-        if item is None:
-            return None
-
-        if item.is_tombstone():
-            return None
-
-        return item
+    # def _get_item(self, key):
+    #     item = self._sorted_dict.get(key, None)
+    #     if item is None:
+    #         return None
+    #
+    #     if item.is_tombstone():
+    #         return None
+    #
+    #     return item
 
 
     def _dec_size_if_key_exists(self, key):
-        item = self._get_item(key)
+        # item = self._get_item(key)
+        item = self.get(key)
         if item is not None:
             self._size -= item.get_size()
 
@@ -37,11 +38,12 @@ class Memtable():
 
 
     def get(self, key):
-        item = self._get_item(key)
-        if item is not None:
-            return item.get_value()
+        # item = self._get_item(key)
+        # if item is not None:
+        #     return item.get_value()
+        item = Item(key, None, False)
 
-        return None
+        return self._sorted_dict.get(item.get_key(), None)
 
     def put_item(self, item):
         self._dec_size_if_key_exists(item.get_key())

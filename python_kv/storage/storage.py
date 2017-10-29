@@ -13,16 +13,20 @@
 # 2. * SSTableIndex - 6, can load itself from a file
 # SSTable - 2, 4, 7 + class is a wrapper for previous 2
 # Only SSTable class is used by Storage class
+from python_kv.storage.memtable import Memtable
+from python_kv.storage.sstable_group import SSTableGroup
+
 
 class Storage():
-    def __init__(self):
-        # Initialize memtable
-        # Read existing SSTables from disk
-        # Load SSTables indices into memory
+    def __init__(self, db_path):
+        self._current_memtable = Memtable()
+        self._sstable_group = SSTableGroup.from_directory(db_path)
         pass
 
+
     def put(self, key, value):
-        # Check memtable size
+        self._current_memtable.put(key, value)
+        # TODO: Check memtable size
         # If it's smaller than THRESHOLD:
         #   Add key to memtable
         # Otherwise:
@@ -30,21 +34,21 @@ class Storage():
         #   Load that SSTable's index into memory
         #   Create new memtable
         #   Add key to the new memtable
-        pass
 
 
     def delete(self, key):
-        # Same as put
-        pass
+        # TODO: Same as put
+        self._current_memtable.delete(key)
 
 
     def get(self, key):
-        # Check memtable for a key
-        # If key is in memtable:
-        #   Return value from memtable
-        # Otherwise
-        #   Check latest SSTable index # TODO: SSTableManager class that stores all available SSTables and iterates them
-        #   If key is there load it from disk using offset in SSTable index
-        #   Otherwise repeat for older SSTable until found
-        # Return None if key is not found
-        pass
+        result = self._current_memtable.get(key)
+        if result is not None:
+            return result.get_value()
+
+        result = self._sstable_group.get(key)
+
+        if result is not None:
+            return result.get_value()
+
+        return None

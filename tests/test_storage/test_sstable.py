@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from python_kv.storage.item import Item
 from python_kv.storage.memtable import Memtable
 from python_kv.storage.sstable import SSTable
 
@@ -37,10 +38,10 @@ def test_get_value_memtable_created(test_folder):
 
     sstable = SSTable.from_memtable(memtable, test_folder, 'test')
 
-    assert ('1', False) == sstable.get('1')
-    assert ('two', False) == sstable.get('2')
-    assert (None, True) == sstable.get('3')
-    assert (None, False) == sstable.get('4')
+    assert Item('1', '1', False) == sstable.get('1')
+    assert Item('2', 'two', False) == sstable.get('2')
+    assert Item('3', None, True) == sstable.get('3')
+    assert None == sstable.get('4')
 
 
 def test_creation_from_file(test_folder):
@@ -55,5 +56,5 @@ def test_creation_from_file(test_folder):
 
     sstable = SSTable.from_file(test_folder, 'test_file_load')
 
-    assert ('1', False) == sstable.get('1')
-    assert (None, False) == sstable.get('2')
+    assert Item('1', '1', False) == sstable.get('1')
+    assert None == sstable.get('2')
