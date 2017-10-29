@@ -10,7 +10,7 @@ def test_creation_from_memtable(test_folder):
     memtable = Memtable()
     memtable.put(1, 1)
 
-    sstable = SSTable.from_memtable(memtable, test_folder, 'test')
+    SSTable.from_memtable(memtable, test_folder, 'test')
 
     expected_table_path = os.path.join(test_folder, "test.table")
     expected_index_path = os.path.join(test_folder, "test.index")
@@ -42,3 +42,18 @@ def test_get_value_memtable_created(test_folder):
     assert (None, True) == sstable.get('3')
     assert (None, False) == sstable.get('4')
 
+
+def test_creation_from_file(test_folder):
+    table_path = os.path.join(test_folder, "test_file_load.table")
+    index_path = os.path.join(test_folder, "test_file_load.index")
+
+    with open(table_path, 'wb') as f:
+        f.write(b'\x01\x00\x00\x001\x01\x00\x00\x00\x001')
+
+    with open(index_path, 'wb') as f:
+        f.write(b'\x93\xac\x16\x94\x00\x00\x00\x00')
+
+    sstable = SSTable.from_file(test_folder, 'test_file_load')
+
+    assert ('1', False) == sstable.get('1')
+    assert (None, False) == sstable.get('2')

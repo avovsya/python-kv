@@ -1,6 +1,7 @@
 import os
 
 from python_kv.storage.item import Item
+from python_kv.storage.sstable_index import SSTableIndex
 
 
 def _get_value_flags_from_bit_flags(bit_flags):
@@ -42,11 +43,15 @@ class SSTable:
         Returns:
             (SSTable): SSTable initialized from a table on disk
         '''
-        # Get table file path - path + file_prefix + "table.db"
-        # Get index file path - path + file_prefix + "index.db"
-        # Load index using SSTableIndex class
-        # Initialize class
-        pass
+        table_path = os.path.join(path, "{}.table".format(file_prefix))
+        index_path = os.path.join(path, "{}.index".format(file_prefix))
+
+        with open(index_path, 'rb') as index_file:
+            index_binary = index_file.read()
+
+        memory_index = SSTableIndex.from_binary(index_binary)
+
+        return cls(memory_index, table_path)
 
 
     @classmethod
